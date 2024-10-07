@@ -3,6 +3,7 @@ import sys
 import random
 import math
 from datetime import datetime
+import os
 
 # Initialize Pygame
 pygame.init()
@@ -17,7 +18,7 @@ FPS = 60
 DT = 0.2
 
 
-MAX_LANDING_SPEED = 0.5
+MAX_LANDING_SPEED = 1.0
 
 
 INIT_FUEL = 1000
@@ -35,9 +36,14 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 ORANGE = (255, 165, 0)
 
+
+curr_folder = os.path.dirname(__file__)
+
+
 # Load images
-spaceship_image = pygame.image.load('images/spaceship.png')
-spaceship_thrust_image = pygame.image.load('images/spaceship_thrust.png')
+spaceship_image = pygame.image.load(os.path.join(curr_folder,'images','spaceship.png'))
+spaceship_thrust_image = pygame.image.load(os.path.join(curr_folder, 'images','spaceship_thrust.png'))
+
 
 # Spaceship class
 class Spaceship:
@@ -172,7 +178,7 @@ def main():
         screen.blit(fuel_text, (10, 10))
 
         # Render speed magnitude text
-        speed_text = font.render(f'Speed: {speed:.2f}', True, RED if speed>1.0 else WHITE)
+        speed_text = font.render(f'Speed: {speed:.2f}', True, RED if speed>MAX_LANDING_SPEED else WHITE)
         screen.blit(speed_text, (10, 50))
 
         # Render height text
