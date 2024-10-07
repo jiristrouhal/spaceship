@@ -15,7 +15,7 @@ THRUST = 0.2
 FUEL_CONSUMPTION = 1
 ROTATION_SPEED = 2
 FPS = 60
-DT = 0.2
+DT = 0.25
 
 
 MAX_LANDING_SPEED = 1.0
@@ -41,8 +41,10 @@ curr_folder = os.path.dirname(__file__)
 
 
 # Load images
-spaceship_image = pygame.image.load(os.path.join(curr_folder,'images','spaceship.png'))
-spaceship_thrust_image = pygame.image.load(os.path.join(curr_folder, 'images','spaceship_thrust.png'))
+spaceship_image = pygame.image.load(os.path.join(curr_folder, "images", "spaceship.png"))
+spaceship_thrust_image = pygame.image.load(
+    os.path.join(curr_folder, "images", "spaceship_thrust.png")
+)
 
 
 # Spaceship class
@@ -64,20 +66,20 @@ class Spaceship:
         if self.fuel > 0:
             if keys[pygame.K_UP]:
                 thrust_vector = pygame.math.Vector2(0.0, -THRUST).rotate(-self.angle)
-                self.velocity += DT*thrust_vector
+                self.velocity += DT * thrust_vector
                 self.fuel -= FUEL_CONSUMPTION
                 self.thrusting = True
             if keys[pygame.K_LEFT]:
-                self.angle += DT*ROTATION_SPEED
+                self.angle += DT * ROTATION_SPEED
             if keys[pygame.K_RIGHT]:
-                self.angle -= DT*ROTATION_SPEED
+                self.angle -= DT * ROTATION_SPEED
 
         # Apply gravity
-        self.velocity.y += DT*GRAVITY
+        self.velocity.y += DT * GRAVITY
 
         # Update position
-        self.position.x += DT*self.velocity.x
-        self.position.y += DT*self.velocity.y
+        self.position.x += DT * self.velocity.x
+        self.position.y += DT * self.velocity.y
 
         self.rect.x = self.position.x
         self.rect.y = self.position.y
@@ -97,8 +99,8 @@ class Spaceship:
         if self.rect.top < 0:
             self.rect.top = 0
             self.velocity.y = 0
-        if self.rect.center[1] > HEIGHT+20:
-            self.rect.center[1] = HEIGHT+20
+        if self.rect.center[1] > HEIGHT + 20:
+            self.rect.center[1] = HEIGHT + 20
             self.velocity.y = 0
 
     def draw(self, screen):
@@ -109,9 +111,12 @@ class Spaceship:
 
 
 def write_results(fuel, speed, height, success: str):
-    with open('results.txt', 'a') as f:
-        t = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        f.write(f'Time: {t}, Fuel: {fuel:.2f}, Speed: {speed:.2f}, Height: {height:.2f}, {success}\n')
+    with open("results.txt", "a") as f:
+        t = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        f.write(
+            f"Time: {t}, Fuel: {fuel:.2f}, Speed: {speed:.2f}, Height: {height:.2f}, {success}\n"
+        )
+
 
 # Main game function
 def main():
@@ -131,7 +136,11 @@ def main():
 
     while True:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if (
+                event.type == pygame.QUIT
+                or event.type == pygame.KEYDOWN
+                and event.key == pygame.K_ESCAPE
+            ):
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN and not running:
@@ -162,12 +171,32 @@ def main():
                     write_results(spaceship.fuel, speed, height, text)
 
         else:
-            screen.blit(message, (WIDTH // 2 - message.get_width() // 2, HEIGHT // 2 - message.get_height() // 2))
+            screen.blit(
+                message,
+                (
+                    WIDTH // 2 - message.get_width() // 2,
+                    HEIGHT // 2 - message.get_height() // 2,
+                ),
+            )
             retry_message = font.render("Press spacebar to try again", True, WHITE)
-            screen.blit(retry_message, (WIDTH // 2 - retry_message.get_width() // 2, HEIGHT // 2 + message.get_height()))
+            screen.blit(
+                retry_message,
+                (
+                    WIDTH // 2 - retry_message.get_width() // 2,
+                    HEIGHT // 2 + message.get_height(),
+                ),
+            )
 
-        pygame.draw.line(screen, WHITE, (0, HEIGHT - 10), (WIDTH, HEIGHT - 10), 5)  # Draw the planet surface as a white line
-        pygame.draw.line(screen, RED, (landing_site_x, HEIGHT - 10), (landing_site_x + 50, HEIGHT - 10), 5)  # Draw the landing site as a red line
+        pygame.draw.line(
+            screen, WHITE, (0, HEIGHT - 10), (WIDTH, HEIGHT - 10), 5
+        )  # Draw the planet surface as a white line
+        pygame.draw.line(
+            screen,
+            RED,
+            (landing_site_x, HEIGHT - 10),
+            (landing_site_x + 50, HEIGHT - 10),
+            5,
+        )  # Draw the landing site as a red line
         spaceship.draw(screen)
 
         # Render fuel text
@@ -175,16 +204,17 @@ def main():
         screen.blit(fuel_text, (10, 10))
 
         # Render speed magnitude text
-        speed_text = font.render(f'Speed: {speed:.2f}', True, RED if speed>MAX_LANDING_SPEED else WHITE)
+        speed_text = font.render(
+            f"Speed: {speed:.2f}", True, RED if speed > MAX_LANDING_SPEED else WHITE
+        )
         screen.blit(speed_text, (10, 50))
 
         # Render height text
-        height_text = font.render(f'Height: {height:.2f}', True, WHITE)
+        height_text = font.render(f"Height: {height:.2f}", True, WHITE)
         screen.blit(height_text, (10, 90))
 
         pygame.display.flip()
         clock.tick(FPS)
-
 
 
 if __name__ == "__main__":

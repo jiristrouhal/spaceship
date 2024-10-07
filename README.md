@@ -41,6 +41,7 @@ pip install -r requirements.txt
    - If you land on the marked part with a speed above 1, you will see a red "Crash!" message.
    - If you land outside the marked part, you will see an orange "You missed the landing site!" message.
    - Press the spacebar to restart the game.
+   - Press the escape key to exit the game at any time.
 
 ## Notes
 
