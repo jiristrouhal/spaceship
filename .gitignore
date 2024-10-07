@@ -2,3 +2,4 @@
 .vscode
 .log
 queries.txt
+__pycache__
