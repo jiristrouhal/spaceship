@@ -150,6 +150,7 @@ def main():
             # Check for landing or crash
             if height <= 2:
                 running = False
+                write_results(spaceship.fuel, speed, height, text)
 
         else:
             if speed < MAX_LANDING_SPEED:
@@ -162,8 +163,6 @@ def main():
             else:
                 text = "Crash!"
                 message = font.render("Crash!", True, RED)
-
-            write_results(spaceship.fuel, speed, height, text)
 
             screen.blit(message, (WIDTH // 2 - message.get_width() // 2, HEIGHT // 2 - message.get_height() // 2))
             retry_message = font.render("Press spacebar to try again", True, WHITE)
