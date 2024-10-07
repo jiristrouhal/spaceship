@@ -142,7 +142,6 @@ def main():
         height = HEIGHT - spaceship.rect.center[1] - 20
 
         screen.fill(BLACK)
-
         if running:
             keys = pygame.key.get_pressed()
             spaceship.update(keys)
@@ -150,20 +149,19 @@ def main():
             # Check for landing or crash
             if height <= 2:
                 running = False
-                write_results(spaceship.fuel, speed, height, text)
+                if speed < MAX_LANDING_SPEED:
+                    if landing_site_x <= spaceship.rect.centerx <= landing_site_x + 50:
+                        text = "Successful landing!"
+                        message = font.render("Successful landing!", True, GREEN)
+                    else:
+                        text = "You missed the landing site!"
+                        message = font.render("You missed the landing site!", True, ORANGE)
+                else:
+                    text = "Crash!"
+                    message = font.render("Crash!", True, RED)
+                    write_results(spaceship.fuel, speed, height, text)
 
         else:
-            if speed < MAX_LANDING_SPEED:
-                if landing_site_x <= spaceship.rect.centerx <= landing_site_x + 50:
-                    text = "Successful landing!"
-                    message = font.render("Successful landing!", True, GREEN)
-                else:
-                    text = "You missed the landing site!"
-                    message = font.render("You missed the landing site!", True, ORANGE)
-            else:
-                text = "Crash!"
-                message = font.render("Crash!", True, RED)
-
             screen.blit(message, (WIDTH // 2 - message.get_width() // 2, HEIGHT // 2 - message.get_height() // 2))
             retry_message = font.render("Press spacebar to try again", True, WHITE)
             screen.blit(retry_message, (WIDTH // 2 - retry_message.get_width() // 2, HEIGHT // 2 + message.get_height()))
