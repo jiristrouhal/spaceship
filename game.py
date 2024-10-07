@@ -9,12 +9,19 @@ pygame.init()
 
 # Constants
 WIDTH, HEIGHT = 800, 600
-GRAVITY = 0.04
-THRUST = 0.06
+GRAVITY = 0.05
+THRUST = 0.1
 FUEL_CONSUMPTION = 1
-ROTATION_SPEED = 1
+ROTATION_SPEED = 2
 FPS = 60
-DT = 0.5
+DT = 0.25
+
+
+INIT_X = 50
+INIT_Y = HEIGHT // 2
+INIT_X_SPEED = 2
+INIT_Y_SPEED = 0
+INIT_ANGLE = 90
 
 
 # Colors
@@ -35,10 +42,10 @@ class Spaceship:
         self.original_thrust_image = pygame.transform.scale(spaceship_thrust_image, (50, 50))
         self.image = self.original_image
         self.thrust_image = self.original_thrust_image
-        self.rect = self.image.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+        self.rect = self.image.get_rect(center=(INIT_X, INIT_Y))
         self.position = pygame.math.Vector2(self.rect.center)
-        self.velocity = pygame.math.Vector2(0.0, 0.0)
-        self.angle = 0.0
+        self.velocity = pygame.math.Vector2(INIT_X_SPEED, INIT_Y_SPEED)
+        self.angle = INIT_ANGLE
         self.fuel = 1000.0
         self.thrusting = False
 
@@ -122,7 +129,7 @@ def main():
                     spaceship, running, landing_site_x = reset_game()
 
         speed = math.sqrt(spaceship.velocity.x**2 + spaceship.velocity.y**2)
-        height = HEIGHT - spaceship.rect.center[1] - 26
+        height = HEIGHT - spaceship.rect.center[1] - 28
 
         screen.fill(BLACK)
 
