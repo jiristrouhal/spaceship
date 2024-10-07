@@ -1,0 +1,1 @@
+Underline part of the planet surface with a red line with length of about the size of the spaceship. Show it at a random position at each run of the game.
