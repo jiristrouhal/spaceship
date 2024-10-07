@@ -9,17 +9,21 @@ pygame.init()
 
 # Constants
 WIDTH, HEIGHT = 800, 600
-GRAVITY = 0.05
-THRUST = 0.1
+GRAVITY = 0.04
+THRUST = 0.2
 FUEL_CONSUMPTION = 1
 ROTATION_SPEED = 2
 FPS = 60
-DT = 0.25
+DT = 0.2
 
 
+MAX_LANDING_SPEED = 0.5
+
+
+INIT_FUEL = 1000
 INIT_X = 50
-INIT_Y = HEIGHT // 2
-INIT_X_SPEED = 2
+INIT_Y = 100
+INIT_X_SPEED = 4
 INIT_Y_SPEED = 0
 INIT_ANGLE = 90
 
@@ -46,7 +50,7 @@ class Spaceship:
         self.position = pygame.math.Vector2(self.rect.center)
         self.velocity = pygame.math.Vector2(INIT_X_SPEED, INIT_Y_SPEED)
         self.angle = INIT_ANGLE
-        self.fuel = 1000.0
+        self.fuel = INIT_FUEL
         self.thrusting = False
 
     def update(self, keys):
@@ -87,8 +91,8 @@ class Spaceship:
         if self.rect.top < 0:
             self.rect.top = 0
             self.velocity.y = 0
-        if self.rect.bottom > HEIGHT:
-            self.rect.bottom = HEIGHT
+        if self.rect.center[1] > HEIGHT+20:
+            self.rect.center[1] = HEIGHT+20
             self.velocity.y = 0
 
     def draw(self, screen):
@@ -129,7 +133,7 @@ def main():
                     spaceship, running, landing_site_x = reset_game()
 
         speed = math.sqrt(spaceship.velocity.x**2 + spaceship.velocity.y**2)
-        height = HEIGHT - spaceship.rect.center[1] - 28
+        height = HEIGHT - spaceship.rect.center[1] - 20
 
         screen.fill(BLACK)
 
@@ -138,11 +142,11 @@ def main():
             spaceship.update(keys)
 
             # Check for landing or crash
-            if height <= 1:
+            if height <= 2:
                 running = False
 
         else:
-            if speed < 1:
+            if speed < MAX_LANDING_SPEED:
                 if landing_site_x <= spaceship.rect.centerx <= landing_site_x + 50:
                     text = "Successful landing!"
                     message = font.render("Successful landing!", True, GREEN)
