@@ -4,6 +4,7 @@ import random
 import math
 from datetime import datetime
 import os
+import json
 
 # Initialize Pygame
 pygame.init()
@@ -122,6 +123,26 @@ def write_results(fuel, speed, height, success: str):
         )
 
 
+def write_state(spaceship: Spaceship):
+    with open(os.path.join(os.path.dirname(__file__), "state.json"), "w") as f:
+        t = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        state = {
+            "time": t,
+            "thrust": THRUST,
+            "gravity": GRAVITY,
+            "empty-mass": EMPTY_MASS,
+
+            "fuel-mass": spaceship.fuel * MASS_PER_FUEL_UNIT,
+            "fuel-consumption": FUEL_CONSUMPTION,
+            "vertcal-speed": spaceship.velocity.y,
+            "horizontal-speed": spaceship.velocity.x,
+            "angle": spaceship.angle,
+            "vertical-position": spaceship.rect.center[1],
+            "horizontal-position": spaceship.rect.center[0],
+        }
+        json.dump(state, f, indent=4)
+
+
 # Main game function
 def main():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -155,9 +176,11 @@ def main():
         height = HEIGHT - spaceship.rect.center[1] - 20
 
         screen.fill(BLACK)
+
         if running:
             keys = pygame.key.get_pressed()
             spaceship.update(keys)
+            write_state(spaceship)
 
             # Check for landing or crash
             if height <= 2:
