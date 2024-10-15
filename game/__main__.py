@@ -9,24 +9,26 @@ import os
 pygame.init()
 
 # Constants
+FPS = 50
 WIDTH, HEIGHT = 800, 600
-GRAVITY = 0.04
-THRUST = 0.2
+GRAVITY = 10
+THRUST = 50
 FUEL_CONSUMPTION = 1
-ROTATION_SPEED = 2
-FPS = 60
-DT = 0.25
+ROTATION_SPEED = 90
+DT = 1 / FPS
 
 
-MAX_LANDING_SPEED = 1.0
+MAX_LANDING_SPEED = 10.0
 
 
+EMPTY_MASS = 1
+MASS_PER_FUEL_UNIT = 0.001
 INIT_FUEL = 1000
-INIT_X = 50
+INIT_X = 200
 INIT_Y = 100
-INIT_X_SPEED = 4
+INIT_X_SPEED = 0
 INIT_Y_SPEED = 0
-INIT_ANGLE = 90
+INIT_ANGLE = 0
 
 
 # Colors
@@ -60,14 +62,16 @@ class Spaceship:
         self.angle = INIT_ANGLE
         self.fuel = INIT_FUEL
         self.thrusting = False
+        self.mass = EMPTY_MASS + self.fuel * MASS_PER_FUEL_UNIT
 
     def update(self, keys):
         self.thrusting = False
         if self.fuel > 0:
             if keys[pygame.K_UP]:
+                self.fuel -= FUEL_CONSUMPTION
+                self.mass = EMPTY_MASS + self.fuel * MASS_PER_FUEL_UNIT
                 thrust_vector = pygame.math.Vector2(0.0, -THRUST).rotate(-self.angle)
                 self.velocity += DT * thrust_vector
-                self.fuel -= FUEL_CONSUMPTION
                 self.thrusting = True
             if keys[pygame.K_LEFT]:
                 self.angle += DT * ROTATION_SPEED
@@ -168,7 +172,7 @@ def main():
                 else:
                     text = "Crash!"
                     message = font.render("Crash!", True, RED)
-                    write_results(spaceship.fuel, speed, height, text)
+                write_results(spaceship.fuel, speed, height, text)
 
         else:
             screen.blit(
@@ -207,11 +211,14 @@ def main():
         speed_text = font.render(
             f"Speed: {speed:.2f}", True, RED if speed > MAX_LANDING_SPEED else WHITE
         )
-        screen.blit(speed_text, (10, 50))
+        screen.blit(speed_text, (10, 40))
 
         # Render height text
         height_text = font.render(f"Height: {height:.2f}", True, WHITE)
-        screen.blit(height_text, (10, 90))
+        screen.blit(height_text, (10, 70))
+
+        time_text = font.render(f"Time {pygame.time.get_ticks()/1000:.2f}", True, WHITE)
+        screen.blit(time_text, (10, 100))
 
         pygame.display.flip()
         clock.tick(FPS)
