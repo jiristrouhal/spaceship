@@ -5,21 +5,23 @@ import math
 from datetime import datetime
 import os
 import json
+import time
 
 # Initialize Pygame
 pygame.init()
 
 # Constants
-FPS = 50
+FPS = 300
 WIDTH, HEIGHT = 800, 600
 GRAVITY = 10
-THRUST = 50
-FUEL_CONSUMPTION = 1
+THRUST = 150
+FUEL_CONSUMPTION = 100
 ROTATION_SPEED = 90
-DT = 1 / FPS
+TIME_SLOWDOWN = 1.5
+DT = 1.0 / (TIME_SLOWDOWN * FPS)
 
 
-MAX_LANDING_SPEED = 10.0
+MAX_LANDING_SPEED = 20
 
 
 EMPTY_MASS = 1
@@ -52,7 +54,7 @@ spaceship_thrust_image = pygame.image.load(
 
 # Spaceship class
 class Spaceship:
-    def __init__(self):
+    def __init__(self, variable_mass: bool = False):
         self.original_image = pygame.transform.scale(spaceship_image, (50, 50))
         self.original_thrust_image = pygame.transform.scale(spaceship_thrust_image, (50, 50))
         self.image = self.original_image
@@ -62,18 +64,24 @@ class Spaceship:
         self.velocity = pygame.math.Vector2(INIT_X_SPEED, INIT_Y_SPEED)
         self.angle = INIT_ANGLE
         self.fuel = INIT_FUEL
-        self.thrusting = False
         self.mass = EMPTY_MASS + self.fuel * MASS_PER_FUEL_UNIT
+        self._variable_mass = variable_mass
+        self.time = 0
+        self.thrusting = False
 
     def update(self, keys):
         self.thrusting = False
+        self.time += DT
         if self.fuel > 0:
             if keys[pygame.K_UP]:
-                self.fuel -= FUEL_CONSUMPTION
-                self.mass = EMPTY_MASS + self.fuel * MASS_PER_FUEL_UNIT
-                thrust_vector = pygame.math.Vector2(0.0, -THRUST).rotate(-self.angle)
-                self.velocity += DT * thrust_vector
                 self.thrusting = True
+                self.fuel -= DT * FUEL_CONSUMPTION
+                if self._variable_mass:
+                    self.mass = EMPTY_MASS + self.fuel * MASS_PER_FUEL_UNIT
+                else:
+                    self.mass = EMPTY_MASS + INIT_FUEL * MASS_PER_FUEL_UNIT
+                thrust_vector = pygame.math.Vector2(0.0, -THRUST / self.mass).rotate(-self.angle)
+                self.velocity += DT * thrust_vector
             if keys[pygame.K_LEFT]:
                 self.angle += DT * ROTATION_SPEED
             if keys[pygame.K_RIGHT]:
@@ -92,7 +100,7 @@ class Spaceship:
         # Rotate the image
         self.image = pygame.transform.rotate(self.original_image, self.angle)
         self.thrust_image = pygame.transform.rotate(self.original_thrust_image, self.angle)
-        self.rect = self.image.get_rect(center=self.rect.center)
+        self.rect = self.image.get_rect(center=self.position)
 
         # Boundary conditions
         if self.rect.left < 0:
@@ -130,15 +138,16 @@ def write_state(spaceship: Spaceship):
             "time": t,
             "thrust": THRUST,
             "gravity": GRAVITY,
-            "empty-mass": EMPTY_MASS,
-
+            "mass": spaceship.mass,
             "fuel-mass": spaceship.fuel * MASS_PER_FUEL_UNIT,
             "fuel-consumption": FUEL_CONSUMPTION,
-            "vertcal-speed": spaceship.velocity.y,
-            "horizontal-speed": spaceship.velocity.x,
+            "vertical-velocity": -spaceship.velocity.y,
+            "horizontal-velocity": spaceship.velocity.x,
             "angle": spaceship.angle,
-            "vertical-position": spaceship.rect.center[1],
-            "horizontal-position": spaceship.rect.center[0],
+            "rotation-speed": ROTATION_SPEED,
+            "vertical-position": HEIGHT - spaceship.position.y,
+            "horizontal-position": spaceship.position.x - 25,
+            "time-slowdown": TIME_SLOWDOWN,
         }
         json.dump(state, f, indent=4)
 
@@ -153,7 +162,9 @@ def main():
     font = pygame.font.SysFont(None, 36)
 
     def reset_game():
+        global _start_time
         spaceship = Spaceship()
+        _start_time = time.time()
         landing_site_x = random.randint(0, WIDTH - 50)
         return spaceship, True, landing_site_x
 

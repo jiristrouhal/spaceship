@@ -4,6 +4,11 @@ This is a simple spaceship game where you control a spaceship to land on a desig
 
 The game has been built in order to test a AI agent that can learn to play the game.
 
+![alt text](image.png)
+
+![Game Screenshot](preview.png)
+
+
 ## Setup
 
 ### Prerequisites
